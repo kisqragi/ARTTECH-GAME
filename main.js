@@ -16,6 +16,11 @@ var down_image  = 'img/down.png';
 var right_image = 'img/right.png';
 var left_image  = 'img/left.png';
 
+/*---- socket用変数 ----*/
+var socket  = null;
+var ip_addr = '192.168.2.6';
+var port    = '8081';
+
 function addSprite(game, img_name, x, y, width, height) {
     var char = new Sprite(width, height);
     char.image = game.assets[img_name];
@@ -33,8 +38,21 @@ window.onload = function() {
     game.preload(down_image);
     game.preload(right_image);
     game.preload(left_image);
-
+    
     game.onload = function() {
+     
+        // 接続要求
+        socket = io.connect("http://" + ip_addr + ":" + port);
+
+        socket.on("entry", function(data) {
+            socket.emit("admin");
+            alert('entry ok!!');
+        });
+
+        socket.on("adminto", function(data) {
+            //alert('received a adminto message');
+        });
+
         up_button    = addSprite(game, up_image, 200, 100, button_width, button_height);
         down_button  = addSprite(game, down_image, 200, 300, button_width, button_height);
         right_button = addSprite(game, right_image, 300, 200, button_width, button_height);
