@@ -20,6 +20,7 @@ var left_image  = 'img/left.png';
 var socket  = null;
 var ip_addr = '192.168.2.6';
 var port    = '8081';
+var curr_data = null; // socket.data保持用
 
 function addSprite(game, img_name, x, y, width, height) {
     var char = new Sprite(width, height);
@@ -46,11 +47,11 @@ window.onload = function() {
 
         socket.on("entry", function(data) {
             socket.emit("admin");
-            alert('entry ok!!');
+            console.log('admin done!');
         });
 
         socket.on("adminto", function(data) {
-            //alert('received a adminto message');
+            console.log("recieve adminto");
         });
 
         up_button    = addSprite(game, up_image, 200, 100, button_width, button_height);
