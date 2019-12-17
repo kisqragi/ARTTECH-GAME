@@ -10,8 +10,9 @@ var game = null;
 
 var button_width  = 100;
 var button_height = 100;
-
 var button_scale  = 5;
+
+var init_pos = -500;
 
 var up_image    = null;
 var down_image  = null;
@@ -39,13 +40,13 @@ var port    = '8081';
 var index = null; // socket.data保持用
 
 // スプライトを追加する関数
-function addSprite(game, img_name, x, y, width, height) {
+function addSprite(game, img_name, x, y, width, height, scale) {
     var char = new Sprite(width, height);
     char.image = game.assets[img_name];
     char.x = x;
     char.y = y;
-    char.scaleX = 4;
-    char.scaleY = 4;
+    char.scaleX = scale;
+    char.scaleY = scale;
     game.rootScene.addChild(char);
     return char;
 }
@@ -62,14 +63,14 @@ function addLabel(game, label_str, x, y, color, font) {
     return label;
 }
 
-function updataLabel(label, str) {
+function updateLabel(label, str) {
     if (str != "none")
         label.text = str;
 }
 
 function moveImage(direction) {
     if (curr_image != null)
-        curr_image.moveTo(-200, -200);
+        curr_image.moveTo(init_pos, init_pos);
     
     switch(direction) {
         case "up":
@@ -86,7 +87,10 @@ function moveImage(direction) {
             break;
     }
     
-    curr_image.moveTo((game.width/2)-(button_width/2), 100);
+    var move_x = (game.width / 2) - (curr_image.width * curr_image.scaleX / 2); 
+    var move_y = (game.height / 2) - (curr_image.width * curr_image.scaleY / 2); 
+    //var move_y = (curr_image.width * curr_image.scaleY / 2); 
+    curr_image.moveTo(move_y, move_x);
 }
 
 
@@ -119,7 +123,7 @@ function emitData(direction, index) {
     if (index) {
         socket.emit(direction, index);
         index = null;
-        updataLabel(touch_label, "表示端末を選択してください");
+        updateLabel(touch_label, "表示端末を選択してください");
     } else {
         alert("表示端末を選択してください");
     }
@@ -148,17 +152,14 @@ window.onload = function() {
         // 表示画面がタッチされたらそのIDを保持
         socket.on("touch", function(data){
             index = data.index;
-            updataLabel(touch_label, index+"番が選択されています。");
+            updateLabel(touch_label, index+"番が選択されています。");
         });
 
         // イメージを配置する処理
-        up_image    = addSprite(game, up_image, -200, -200, button_width, button_height);
-        down_image  = addSprite(game, down_image, -200, -200, button_width, button_height);
-        right_image = addSprite(game, right_image, -200, -200, button_width, button_height);
-        left_image  = addSprite(game, left_image, -200, -200, button_width, button_height);
-
-        console.log(up_image.width);
-        console.log(up_image.height);
+        up_image    = addSprite(game, up_image, init_pos, init_pos, button_width, button_height, button_scale);
+        down_image  = addSprite(game, down_image, init_pos, init_pos, button_width, button_height, button_scale);
+        right_image = addSprite(game, right_image, init_pos, init_pos, button_width, button_height, button_scale);
+        left_image  = addSprite(game, left_image, init_pos, init_pos, button_width, button_height, button_scale);
 
         // ラベルを配置する処理
         touch_label = addLabel(game, '表示端末を選択してください', 50, 50, 'black', 'italic 2em Times');
@@ -172,7 +173,8 @@ window.onload = function() {
             end_x = e.x;
             end_y = e.y;
             var direction = setDirection(start_x, start_y, end_x, end_y);
-            updataLabel(touch_label, direction);
+            updateLabel(touch_label, direction);
+            emitData(direction, index);
         });
 
     }
