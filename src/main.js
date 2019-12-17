@@ -20,7 +20,7 @@ var left_image  = 'img/left.png';
 var socket  = null;
 var ip_addr = '192.168.2.6';
 var port    = '8081';
-var curr_data = null; // socket.data保持用
+var index = null; // socket.data保持用
 
 function addSprite(game, img_name, x, y, width, height) {
     var char = new Sprite(width, height);
@@ -30,6 +30,16 @@ function addSprite(game, img_name, x, y, width, height) {
     game.rootScene.addChild(char);
     return char;
 }
+
+function emit_data(direction, index) {
+    if (index) {
+        socket.emit(direction, index);
+        console.log("emit done!");
+    } else {
+        alert("表示端末を選択してください");
+    }
+}
+
 
 window.onload = function() {
 
@@ -54,26 +64,20 @@ window.onload = function() {
             console.log("recieve adminto");
         });
 
+        socket.on("touch", function(data) {
+            console.log("recieve adminto");
+            index = data.index;
+        });
+
         up_button    = addSprite(game, up_image, 200, 100, button_width, button_height);
         down_button  = addSprite(game, down_image, 200, 300, button_width, button_height);
         right_button = addSprite(game, right_image, 300, 200, button_width, button_height);
         left_button  = addSprite(game, left_image, 100, 200, button_width, button_height);
 
-        up_button.addEventListener(enchant.Event.TOUCH_START, function(event) {
-            alert('up');
-        });
-
-        down_button.addEventListener(enchant.Event.TOUCH_START, function(event) {
-            alert('down');
-        });
-
-        right_button.addEventListener(enchant.Event.TOUCH_START, function(event) {
-            alert('right');
-        });
-
-        left_button.addEventListener(enchant.Event.TOUCH_START, function(event) {
-            alert('left');
-        });
+        up_button.addEventListener(enchant.Event.TOUCH_START, function(){ emit_data("up", index) }); 
+        down_button.addEventListener(enchant.Event.TOUCH_START, function(){ emit_data("down", index) }); 
+        left_button.addEventListener(enchant.Event.TOUCH_START, function(){ emit_data("right", index) }); 
+        right_button.addEventListener(enchant.Event.TOUCH_START, function(){ emit_data("left", index) }); 
     }
 
     game.start();
