@@ -35,9 +35,9 @@ var end_y = 0;
 
 /*---- socket用変数 ----*/
 var socket  = null;
-var ip_addr = '192.168.2.6';
+var ip_addr = '172.18.1.170';
 var port    = '8081';
-var index = null; // socket.data保持用
+var index = 1; // socket.data保持用
 
 // スプライトを追加する関数
 function addSprite(game, img_name, x, y, width, height, scale) {
@@ -89,7 +89,6 @@ function moveImage(direction) {
     
     var move_x = (game.width / 2) - (curr_image.width * curr_image.scaleX / 2); 
     var move_y = (game.height / 2) - (curr_image.width * curr_image.scaleY / 2); 
-    //var move_y = (curr_image.width * curr_image.scaleY / 2); 
     curr_image.moveTo(move_y, move_x);
 }
 
@@ -112,17 +111,14 @@ function setDirection(x1, y1, x2, y2) {
             ans = "down";
     }
 
-    if (ans != none) {
-        moveImage(ans);
-    }
-    
     return ans;
 }
 
 function emitData(direction, index) {
-    if (index) {
+    if (index != null) {
         socket.emit(direction, index);
         index = null;
+        console.log(index);
         updateLabel(touch_label, "表示端末を選択してください");
     } else {
         alert("表示端末を選択してください");
@@ -172,9 +168,14 @@ window.onload = function() {
         game.rootScene.addEventListener(enchant.Event.TOUCH_END, function(e) {
             end_x = e.x;
             end_y = e.y;
-            var direction = setDirection(start_x, start_y, end_x, end_y);
-            updateLabel(touch_label, direction);
-            emitData(direction, index);
+            if (index != null) {
+                var direction = setDirection(start_x, start_y, end_x, end_y);
+                if (direction != none) {
+                    moveImage(direction);    
+                }
+                updateLabel(touch_label, direction);
+                emitData(direction, index);
+            }
         });
 
     }
